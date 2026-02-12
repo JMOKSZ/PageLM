@@ -138,11 +138,15 @@ function parseDateHeuristic(dateStr: string): string {
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
 
     if (dateStr.toLowerCase() === 'today') {
-        return new Date(today.getTime() + 24 * 60 * 60 * 1000).toISOString()
+        const todayEnd = new Date(today)
+        todayEnd.setHours(23, 59, 59, 999)
+        return todayEnd.toISOString()
     }
 
     if (dateStr.toLowerCase() === 'tomorrow') {
-        return new Date(today.getTime() + 48 * 60 * 60 * 1000).toISOString()
+        const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000)
+        tomorrow.setHours(23, 59, 59, 999)
+        return tomorrow.toISOString()
     }
 
     if (dateStr.toLowerCase().includes('next week')) {
@@ -192,7 +196,9 @@ function parseDateHeuristic(dateStr: string): string {
         return targetDate.toISOString()
     }
 
-    return new Date(today.getTime() + 48 * 60 * 60 * 1000).toISOString()
+    const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000)
+    tomorrow.setHours(23, 59, 59, 999)
+    return tomorrow.toISOString()
 }
 
 export async function generateSteps(task: Task): Promise<string[]> {
