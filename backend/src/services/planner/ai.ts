@@ -178,7 +178,7 @@ function parseDateHeuristic(dateStr: string): string {
         if (daysToAdd < 0) daysToAdd += 7
 
         const targetDate = new Date(today.getTime() + daysToAdd * 24 * 60 * 60 * 1000)
-        targetDate.setHours(23, 59, 0, 0)
+        targetDate.setHours(23, 59, 59, 999)
         return targetDate.toISOString()
     }
 
@@ -187,7 +187,7 @@ function parseDateHeuristic(dateStr: string): string {
         const month = parseInt(dateMatch[1]) - 1
         const day = parseInt(dateMatch[2])
         const year = now.getFullYear()
-        const targetDate = new Date(year, month, day, 23, 59, 0, 0)
+        const targetDate = new Date(year, month, day, 23, 59, 59, 999)
 
         if (targetDate.getTime() < now.getTime()) {
             targetDate.setFullYear(year + 1)
