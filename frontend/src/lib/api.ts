@@ -596,11 +596,29 @@ export async function analyzeDebate(debateId: string) {
   })
 }
 
+export type SlideType = "opening" | "concept" | "detail" | "summary" | "closing";
+
 export type Slide = {
   id: string;
   title: string;
   bullets: string[];
+  speakerNotes?: string;
   imageUrl?: string;
+  type: SlideType;
+};
+
+export type SlidePlan = {
+  type: SlideType;
+  focus: string;
+  estimatedPoints: number;
+};
+
+export type PresentationPlan = {
+  title: string;
+  subtitle?: string;
+  targetAudience?: string;
+  estimatedSlides: number;
+  slides: SlidePlan[];
 };
 
 export type SlidesStartResponse = {
@@ -611,9 +629,10 @@ export type SlidesStartResponse = {
 
 export type SlidesEvent =
   | { type: "ready"; slidesId: string }
-  | { type: "title"; value: string }
+  | { type: "phase"; value: string }
+  | { type: "plan"; title: string; subtitle?: string; targetAudience?: string; estimatedSlides: number }
   | { type: "slide"; slide: Slide }
-  | { type: "done" }
+  | { type: "done"; totalSlides?: number }
   | { type: "error"; error: string };
 
 export async function slidesStart(input: { chatId?: string; topic?: string; filePath?: string }) {
