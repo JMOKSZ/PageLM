@@ -596,6 +596,47 @@ export async function analyzeDebate(debateId: string) {
   })
 }
 
+export type Slide = {
+  id: string;
+  title: string;
+  bullets: string[];
+  imageUrl?: string;
+};
+
+export type SlidesStartResponse = {
+  ok: true;
+  slidesId: string;
+  stream: string;
+};
+
+export type SlidesEvent =
+  | { type: "ready"; slidesId: string }
+  | { type: "title"; value: string }
+  | { type: "slide"; slide: Slide }
+  | { type: "done" }
+  | { type: "error"; error: string };
+
+export async function slidesStart(input: { chatId?: string; topic?: string; filePath?: string }) {
+  return req<SlidesStartResponse>(`${env.backend}/slides`, {
+    method: "POST",
+    headers: jsonHeaders({}),
+    body: JSON.stringify(input),
+    timeout: Math.max(env.timeout, 120000),
+  });
+}
+
+export function connectSlidesStream(slidesId: string, onEvent: (ev: SlidesEvent) => void) {
+  const url = wsURL(`/ws/slides?slidesId=${encodeURIComponent(slidesId)}`);
+  const ws = new WebSocket(url);
+  ws.onmessage = (m) => {
+    try {
+      onEvent(JSON.parse(m.data as string) as SlidesEvent);
+    } catch {}
+  };
+  ws.onerror = () => onEvent({ type: "error", error: "stream_error" });
+  return { ws, close: () => { try { ws.close(); } catch {} } };
+}
+
 export function err(e: unknown) {
   return e instanceof Error ? e.message : String(e);
 }
